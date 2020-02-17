@@ -4,6 +4,7 @@ from app.libs.base_render import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.core.paginator import Paginator
+from app.utils.permission import dashboard_auth
 
 class Login(View):
     TEMPLATE = 'dashboard/auth/login.html'
@@ -12,12 +13,15 @@ class Login(View):
         if request.user.is_authenticated:
             return redirect(reverse('dashboard_index'))
 
-        data = {'error': ''}
+        to = request.GET.get('to', '')
+
+        data = {'error': '', 'to': to}
         return render_to_response(request, Login.TEMPLATE, data=data)
 
     def post(self, request):
         username = request.POST.get('username')
         password = request.POST.get('password')
+        to = request.GET.get('to', '')
 
         data = {}
         exists = User.objects.filter(username=username).exists()
@@ -36,12 +40,16 @@ class Login(View):
             return render_to_response(request, Login.TEMPLATE, data)
 
         login(request, user)
+        if to:
+            return redirect(to)
+
         return redirect(reverse('dashboard_index'))
 
 
 class AdminManager(View):
     TEMPLATE = 'dashboard/auth/admin.html'
 
+    @dashboard_auth
     def get(self, request):
         users = User.objects.all()
         page = request.GET.get('page', 1)
