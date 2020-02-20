@@ -1,3 +1,4 @@
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect, reverse
 from django.views.generic import View
 from app.libs.base_render import render_to_response
@@ -16,6 +17,7 @@ class Login(View):
         to = request.GET.get('to', '')
 
         data = {'error': '', 'to': to}
+        get_token(request)
         return render_to_response(request, Login.TEMPLATE, data=data)
 
     def post(self, request):
