@@ -28,3 +28,7 @@
     text-overflow: ellipsis;
 ;
 }
+
+#custom-h3 {
+    margin-top: 40px;
+}
